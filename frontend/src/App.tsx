@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,6 +11,18 @@ import { Button } from "./components/ui/button";
 
 function App() {
   const [totalSpent, setTotalSpent] = useState(0);
+
+  useEffect(() => {
+    async function fetchTotalSpent() {
+      const response = await fetch("/api/v1/expenses/total-spent");
+      if (!response.ok) {
+        throw new Error("Failed to fetch total spent");
+      }
+      const data = await response.json();
+      setTotalSpent(data.totalSpent);
+    }
+    fetchTotalSpent();
+  }, []);
   return (
     <>
       <div className="h-screen flex justify-center items-center">
