@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -7,23 +6,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "./components/ui/button";
 import { api } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+
+async function getTotalSpent() {
+  const response = await api.v1.expenses["total-spent"].$get();
+  if (!response.ok) {
+    throw new Error("Failed to fetch total spent");
+  }
+  const data = await response.json();
+  return data;
+}
 
 function App() {
-  const [totalSpent, setTotalSpent] = useState(0);
+  const { isPending, isError, data, error } = useQuery({
+    queryKey: ["get-total-spent"],
+    queryFn: getTotalSpent,
+  });
 
-  useEffect(() => {
-    async function fetchTotalSpent() {
-      const response = await api.v1.expenses["total-spent"].$get();
-      if (!response.ok) {
-        throw new Error("Failed to fetch total spent");
-      }
-      const data = await response.json();
-      setTotalSpent(data.totalSpent);
-    }
-    fetchTotalSpent();
-  }, []);
+  if (isError) {
+    return <span>Error: {error.message}</span>
+  }
+
   return (
     <>
       <div className="h-screen flex justify-center items-center">
@@ -33,21 +37,9 @@ function App() {
             <CardDescription>Total amount you have spent</CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center">
-            {totalSpent}
+            {isPending ? "Loading..." : data.totalSpent}
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button
-              variant={"default"}
-              onClick={() => setTotalSpent(totalSpent + 100)}
-            >
-              Add
-            </Button>
-            <Button
-              variant={"destructive"}
-              onClick={() => setTotalSpent(totalSpent - 100)}
-            >
-              Subtract
-            </Button>
           </CardFooter>
         </Card>
       </div>
