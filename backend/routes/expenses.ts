@@ -52,4 +52,8 @@ export const expensesRoutes = new Hono()
     expensesMockData.splice(expenseIndex, 1);
     context.status(204);
     return context.body("");
+  })
+  .get("/total-spent", (context) => {
+    const totalSpent = expensesMockData.reduce((acc, expense) => acc + expense.amount, 0);
+    return context.json({ totalSpent });
   });
