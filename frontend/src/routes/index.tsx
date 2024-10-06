@@ -1,3 +1,9 @@
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/")({
+  component: Index,
+});
+
 import {
   Card,
   CardContent,
@@ -18,14 +24,14 @@ async function getTotalSpent() {
   return data;
 }
 
-function App() {
+function Index() {
   const { isPending, isError, data, error } = useQuery({
     queryKey: ["get-total-spent"],
     queryFn: getTotalSpent,
   });
 
   if (isError) {
-    return <span>Error: {error.message}</span>
+    return <span>Error: {error.message}</span>;
   }
 
   return (
@@ -39,12 +45,9 @@ function App() {
           <CardContent className="flex justify-center">
             {isPending ? "Loading..." : data.totalSpent}
           </CardContent>
-          <CardFooter className="flex justify-between">
-          </CardFooter>
+          <CardFooter className="flex justify-between"></CardFooter>
         </Card>
       </div>
     </>
   );
 }
-
-export default App;
