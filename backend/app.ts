@@ -8,7 +8,8 @@ const app = new Hono();
 
 app.use("*", logger());
 
-app.route("/api/v1/expenses", expensesRoutes);
+const apiRoutes = app.basePath("/api/v1")
+.route("/expenses", expensesRoutes);
 
 app.get(
   "*",
@@ -22,3 +23,4 @@ app.notFound((context) => {
 });
 
 export default app;
+export type ApiRoutes = typeof apiRoutes;

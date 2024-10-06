@@ -8,13 +8,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "./components/ui/button";
+import { api } from "@/lib/api";
 
 function App() {
   const [totalSpent, setTotalSpent] = useState(0);
 
   useEffect(() => {
     async function fetchTotalSpent() {
-      const response = await fetch("/api/v1/expenses/total-spent");
+      const response = await api.v1.expenses["total-spent"].$get();
       if (!response.ok) {
         throw new Error("Failed to fetch total spent");
       }
