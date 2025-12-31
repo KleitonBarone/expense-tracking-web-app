@@ -1,13 +1,7 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
-
-export const Route = createLazyFileRoute('/_authenticated/expenses')({
-  component: Expenses,
-})
-
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableFooter,
   TableHead,
@@ -17,6 +11,10 @@ import {
 import { api } from '@/lib/api'
 import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from '@/components/ui/skeleton'
+
+export const Route = createLazyFileRoute('/_authenticated/expenses')({
+  component: Expenses,
+})
 
 async function getAllExpenses() {
   const response = await api.v1.expenses.$get()
@@ -33,90 +31,70 @@ function Expenses() {
     queryFn: getAllExpenses,
   })
 
-  if (isError) {
-    return <span>Error: {error.message}</span>
-  }
-
   return (
-    <Table>
-      <TableCaption>A list of your expenses</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[100px]">Id</TableHead>
-          <TableHead>Name</TableHead>
-          <TableHead>Date</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {isPending ? (
-          <>
-            <TableRow key={1}>
-              <TableCell className="font-medium">
-                <Skeleton className="h-4" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4" />
-              </TableCell>
-              <TableCell className="text-right">
-                <Skeleton className="h-4" />
-              </TableCell>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Expenses</h1>
+        <p className="text-muted-foreground">
+          A detailed list of all your recorded expenses.
+        </p>
+      </div>
+
+      <div className="rounded-md border shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[80px]">Id</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
             </TableRow>
-            <TableRow key={2}>
-              <TableCell className="font-medium">
-                <Skeleton className="h-4" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4" />
-              </TableCell>
-              <TableCell className="text-right">
-                <Skeleton className="h-4" />
-              </TableCell>
-            </TableRow>
-            <TableRow key={3}>
-              <TableCell className="font-medium">
-                <Skeleton className="h-4" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4" />
-              </TableCell>
-              <TableCell className="text-right">
-                <Skeleton className="h-4" />
-              </TableCell>
-            </TableRow>
-          </>
-        ) : (
-          data.expenses.map((expense) => (
-            <TableRow key={expense.id}>
-              <TableCell className="font-medium">{expense.id}</TableCell>
-              <TableCell>{expense.name}</TableCell>
-              <TableCell>{expense.date.split('T')[0]}</TableCell>
-              <TableCell className="text-right">{expense.amount}</TableCell>
-            </TableRow>
-          ))
-        )}
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">
-            {isPending ? (
-              <Skeleton className="h-4" />
+          </TableHeader>
+          <TableBody>
+            {isError ? (
+              <TableRow>
+                <TableCell colSpan={4} className="h-24 text-center text-destructive">
+                  Error: {error.message}
+                </TableCell>
+              </TableRow>
+            ) : isPending ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell><Skeleton className="h-4 w-8" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                  <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
+                </TableRow>
+              ))
+            ) : data.expenses.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                  No expenses found.
+                </TableCell>
+              </TableRow>
             ) : (
-              data.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0).toFixed(2)
+              data.expenses.map((expense) => (
+                <TableRow key={expense.id} className="hover:bg-muted/50 transition-colors">
+                  <TableCell className="font-mono text-xs text-muted-foreground">{expense.id}</TableCell>
+                  <TableCell className="font-medium">{expense.name}</TableCell>
+                  <TableCell>{expense.date.split('T')[0]}</TableCell>
+                  <TableCell className="text-right font-semibold">${expense.amount}</TableCell>
+                </TableRow>
+              ))
             )}
-          </TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
+          </TableBody>
+          {!isPending && !isError && data.expenses.length > 0 && (
+            <TableFooter className="bg-muted/30">
+              <TableRow>
+                <TableCell colSpan={3} className="font-semibold">Total</TableCell>
+                <TableCell className="text-right font-bold text-lg">
+                  ${data.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0).toFixed(2)}
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          )}
+        </Table>
+      </div>
+    </div>
   )
 }
