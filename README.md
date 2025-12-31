@@ -59,6 +59,16 @@ The easiest way to get the app running is using Docker Compose.
 
 The app will be available at `http://localhost:3000`.
 
+### Database Migrations
+
+If you are developing locally and make changes to the database schema, you can run migrations from the `backend` directory:
+
+```bash
+cd backend
+bun run db:generate
+bun run db:push
+```
+
 ---
 
 ## 📁 Project Structure

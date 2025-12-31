@@ -33,6 +33,18 @@ bun run dev
 bun run start
 ```
 
+## 🗄️ Database Migrations
+
+Manage your database schema with Drizzle Kit:
+
+```bash
+# Generate migrations based on schema changes
+bun run db:generate
+
+# Push changes directly to the database (best for development)
+bun run db:push
+```
+
 ## 🛤️ API Endpoints
 
 ### Auth
