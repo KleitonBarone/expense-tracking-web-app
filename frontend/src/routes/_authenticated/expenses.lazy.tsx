@@ -1,8 +1,8 @@
-import { createLazyFileRoute } from "@tanstack/react-router";
+import { createLazyFileRoute } from '@tanstack/react-router'
 
-export const Route = createLazyFileRoute("/expenses")({
+export const Route = createLazyFileRoute('/_authenticated/expenses')({
   component: Expenses,
-});
+})
 
 import {
   Table,
@@ -13,28 +13,28 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { api } from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
+} from '@/components/ui/table'
+import { api } from '@/lib/api'
+import { useQuery } from '@tanstack/react-query'
+import { Skeleton } from '@/components/ui/skeleton'
 
 async function getAllExpenses() {
-  const response = await api.v1.expenses.$get();
+  const response = await api.v1.expenses.$get()
   if (!response.ok) {
-    throw new Error("Failed to fetch total spent");
+    throw new Error('Failed to fetch total spent')
   }
-  const data = await response.json();
-  return data;
+  const data = await response.json()
+  return data
 }
 
 function Expenses() {
   const { isPending, isError, data, error } = useQuery({
-    queryKey: ["get-all-expenses"],
+    queryKey: ['get-all-expenses'],
     queryFn: getAllExpenses,
-  });
+  })
 
   if (isError) {
-    return <span>Error: {error.message}</span>;
+    return <span>Error: {error.message}</span>
   }
 
   return (
@@ -44,6 +44,7 @@ function Expenses() {
         <TableRow>
           <TableHead className="w-[100px]">Id</TableHead>
           <TableHead>Name</TableHead>
+          <TableHead>Date</TableHead>
           <TableHead className="text-right">Amount</TableHead>
         </TableRow>
       </TableHeader>
@@ -52,6 +53,9 @@ function Expenses() {
           <>
             <TableRow key={1}>
               <TableCell className="font-medium">
+                <Skeleton className="h-4" />
+              </TableCell>
+              <TableCell>
                 <Skeleton className="h-4" />
               </TableCell>
               <TableCell>
@@ -68,12 +72,18 @@ function Expenses() {
               <TableCell>
                 <Skeleton className="h-4" />
               </TableCell>
+              <TableCell>
+                <Skeleton className="h-4" />
+              </TableCell>
               <TableCell className="text-right">
                 <Skeleton className="h-4" />
               </TableCell>
             </TableRow>
             <TableRow key={3}>
               <TableCell className="font-medium">
+                <Skeleton className="h-4" />
+              </TableCell>
+              <TableCell>
                 <Skeleton className="h-4" />
               </TableCell>
               <TableCell>
@@ -89,6 +99,7 @@ function Expenses() {
             <TableRow key={expense.id}>
               <TableCell className="font-medium">{expense.id}</TableCell>
               <TableCell>{expense.name}</TableCell>
+              <TableCell>{expense.date.split('T')[0]}</TableCell>
               <TableCell className="text-right">{expense.amount}</TableCell>
             </TableRow>
           ))
@@ -96,16 +107,16 @@ function Expenses() {
       </TableBody>
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={2}>Total</TableCell>
+          <TableCell colSpan={3}>Total</TableCell>
           <TableCell className="text-right">
             {isPending ? (
               <Skeleton className="h-4" />
             ) : (
-              data.expenses.reduce((acc, expense) => acc + expense.amount, 0)
+              data.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0).toFixed(2)
             )}
           </TableCell>
         </TableRow>
       </TableFooter>
     </Table>
-  );
+  )
 }

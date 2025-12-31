@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/_authenticated/')({
   component: Index,
-});
+})
 
 import {
   Card,
@@ -11,27 +11,27 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { api } from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
+} from '@/components/ui/card'
+import { api } from '@/lib/api'
+import { useQuery } from '@tanstack/react-query'
 
 async function getTotalSpent() {
-  const response = await api.v1.expenses["total-spent"].$get();
+  const response = await api.v1.expenses['total-spent'].$get()
   if (!response.ok) {
-    throw new Error("Failed to fetch total spent");
+    throw new Error('Failed to fetch total spent')
   }
-  const data = await response.json();
-  return data;
+  const data = await response.json()
+  return data
 }
 
 function Index() {
   const { isPending, isError, data, error } = useQuery({
-    queryKey: ["get-total-spent"],
+    queryKey: ['get-total-spent'],
     queryFn: getTotalSpent,
-  });
+  })
 
   if (isError) {
-    return <span>Error: {error.message}</span>;
+    return <span>Error: {error.message}</span>
   }
 
   return (
@@ -43,11 +43,11 @@ function Index() {
             <CardDescription>Total amount you have spent</CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center">
-            {isPending ? "Loading..." : data.totalSpent}
+            {isPending ? 'Loading...' : data.totalSpent}
           </CardContent>
           <CardFooter className="flex justify-between"></CardFooter>
         </Card>
       </div>
     </>
-  );
+  )
 }

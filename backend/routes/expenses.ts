@@ -2,58 +2,62 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 
+import { authMiddleware } from "../kinde";
+
+import { db } from "../db";
+import { expenses as expensesTable } from "../db/schema/expenses";
+import { eq, sum, desc } from "drizzle-orm";
+
 const expensesSchema = z.object({
   id: z.number().int().positive(),
   name: z.string().min(1),
-  amount: z.number().int().nonnegative(),
+  amount: z.string().min(1),
+  date: z.string().datetime(),
 });
 
 const createExpenseSchema = expensesSchema.omit({ id: true });
 
-type Expense = z.infer<typeof expensesSchema>;
-
-const expensesMockData: Expense[] = [
-    {
-      id: 1,
-      name: "Coffee",
-      amount: 100,
-    },
-    {
-      id: 2,
-      name: "Lunch",
-      amount: 200,
-    },
-  ];
-
 export const expensesRoutes = new Hono()
-  .get("/", (context) => {
-    return context.json({ expenses: expensesMockData });
+  .get("/", authMiddleware, async (context) => {
+    const user = context.var.user;
+    const expenses = await db.select().from(expensesTable).where(eq(expensesTable.userId, user.id)).orderBy(desc(expensesTable.date)).limit(100);
+    return context.json({ expenses });
   })
-  .post("/", zValidator("json", createExpenseSchema), async (context) => {
-    const newExpense = context.req.valid("json");
-    expensesMockData.push({ ...newExpense, id: expensesMockData.length + 1});
+  .post("/", authMiddleware, zValidator("json", createExpenseSchema), async (context) => {
+    const expense = context.req.valid("json");
+    const user = context.var.user;
+    const result = await db.insert(expensesTable).values({ ...expense, userId: user.id, date: new Date(expense.date) }).returning();
     context.status(201);
-    return context.json(newExpense);
+    return context.json(result[0]);
   })
-  .get("/:id{[0-9]+}", (context) => {
+  .get("/:id{[0-9]+}", authMiddleware, async (context) => {
     const expenseId = Number.parseInt(context.req.param("id"));
-    const expense = expensesMockData.find((expense) => expense.id === expenseId);
+    const user = context.var.user;
+    const expense = await db.select().from(expensesTable).where(eq(expensesTable.id, expenseId)).limit(1);
     if (!expense) {
       return context.notFound();
     }
-    return context.json(expense);
+    if (expense[0].userId !== user.id) {
+      return context.status(401);
+    }
+    return context.json(expense[0]);
   })
-  .delete("/:id{[0-9]+}", (context) => {
+  .delete("/:id{[0-9]+}", authMiddleware, async (context) => {
     const expenseId = Number.parseInt(context.req.param("id"));
-    const expenseIndex = expensesMockData.findIndex((expense) => expense.id === expenseId);
-    if (expenseIndex === -1) {
+    const expense = await db.select().from(expensesTable).where(eq(expensesTable.id, expenseId)).limit(1);
+    if (!expense) {
       return context.notFound();
     }
-    expensesMockData.splice(expenseIndex, 1);
+    if (expense[0].userId !== context.var.user.id) {
+      return context.status(401);
+    }
+    await db.delete(expensesTable).where(eq(expensesTable.id, expenseId));
     context.status(204);
-    return context.body("");
+    return context.json(expense[0]);
   })
-  .get("/total-spent", (context) => {
-    const totalSpent = expensesMockData.reduce((acc, expense) => acc + expense.amount, 0);
+  .get("/total-spent", authMiddleware, async (context) => {
+    const user = context.var.user;
+    const totalSpentResult = await db.select({ totalSpent: sum(expensesTable.amount) }).from(expensesTable).where(eq(expensesTable.userId, user.id));
+    const totalSpent = totalSpentResult[0].totalSpent ?? "0";
     return context.json({ totalSpent });
   });
