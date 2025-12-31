@@ -9,8 +9,8 @@ FROM base AS build
 
 RUN apt-get update -qq && apt-get install --no-install-recommends -y
 
-COPY ./backend/bun.lockb ./backend/package.json ./backend/
-COPY ./frontend/bun.lockb ./frontend/package.json ./frontend/
+COPY ./backend/bun.lock ./backend/package.json ./backend/
+COPY ./frontend/bun.lock ./frontend/package.json ./frontend/
 RUN cd backend && bun install --ci && cd ../frontend && bun install --ci && cd ..
 
 COPY . .
