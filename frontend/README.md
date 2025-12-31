@@ -1,6 +1,6 @@
 # 🎨 Expense Tracking Frontend
 
-The frontend of the Expense Tracking Web App is a modern, responsive React application built with [Vite](https://vitejs.dev/) and [TanStack](https://tanstack.com/) libraries.
+The frontend of the Expense Tracking Web App is a modern, responsive React application built with [Vite](https://vitejs.dev/), [TanStack](https://tanstack.com/) libraries, and a premium design system.
 
 ## 🛠️ Tech Stack
 
@@ -10,7 +10,8 @@ The frontend of the Expense Tracking Web App is a modern, responsive React appli
 - **Data Fetching**: [TanStack Query](https://tanstack.com/query)
 - **Forms**: [TanStack Form](https://tanstack.com/form)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Components**: [Radix UI](https://www.radix-ui.com/) & [Lucide React](https://lucide.dev/)
+- **Components**: [Radix UI](https://www.radix-ui.com/), [Lucide React](https://lucide.dev/), and [shadcn/ui](https://ui.shadcn.com/) inspired components.
+- **Micro-animations**: [tailwindcss-animate](https://github.com/jamiebuilds/tailwindcss-animate)
 
 ## 🚀 Getting Started
 

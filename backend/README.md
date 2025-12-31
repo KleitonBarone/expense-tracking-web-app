@@ -1,13 +1,6 @@
 # 🚀 Expense Tracking Backend
 
-The backend of the Expense Tracking Web App is a fast and lightweight API powered by [Hono](https://hono.dev/) and [Bun](https://bun.sh/).
-
-## 🛠️ Features
-
-- **RESTful API**: Clean endpoints for managing expenses.
-- **Type-Safe Validation**: Uses [Zod](https://zod.dev/) for request and response validation.
-- **Robust Auth**: Integrated with [Kinde](https://kinde.com/) for secure user authentication.
-- **Logger Middleware**: Built-in Hono logger for request tracking.
+The backend of the Expense Tracking Web App is a fast and lightweight API powered by [Hono](https://hono.dev/), [Bun](https://bun.sh/), and [Drizzle ORM](https://orm.drizzle.team/).
 
 ## 🚀 Getting Started
 
@@ -27,6 +20,8 @@ KINDE_CLIENT_ID=your_kinde_client_id
 KINDE_CLIENT_SECRET=your_kinde_client_secret
 KINDE_REDIRECT_URI=http://localhost:3000/api/v1/callback
 KINDE_LOGOUT_REDIRECT_URI=http://localhost:3000
+
+DATABASE_URL=postgres://postgres:password@localhost:5432/expense_tracker
 ```
 
 ### Running the Server
